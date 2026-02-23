@@ -7,7 +7,7 @@
 class Command {
 private:
 	std::string userCommand;
-	const std::vector<std::string> commands {"echo", "type"};
+	const std::vector<std::string> commands {"echo", "type", "exit"};
 
 public:
 	Command() {
