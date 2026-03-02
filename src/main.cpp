@@ -57,7 +57,7 @@ public:
 
 						for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
 							if (entry.is_regular_file() && entry.path().filename() == userCommand) {
-								std::cout << entry.path().filename() << " is " << entry.path() << std::endl;
+								std::cout << entry.path().filename().string() << " is " << entry.path().string() << std::endl;
 								found = true;
 								break;
 							} 
