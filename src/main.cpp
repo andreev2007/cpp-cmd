@@ -3,6 +3,8 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
+#include <cstdlib>
 
 class Command {
 private:
@@ -31,6 +33,7 @@ public:
 			userCommand.erase(0, space_pos + 1);
 			std::cout << userCommand << std::endl;
 		}
+
 		else if (hasPos && firstWord == "type") {
 			userCommand.erase(0, space_pos + 1);
 			auto it = std::find(commands.begin(), commands.end(), userCommand);
@@ -39,10 +42,48 @@ public:
 				std::cout << userCommand << " is a shell builtin" << std::endl;
 			}
 			else {
-				std::cout << userCommand << ": not found" << std::endl;
+				std::string pathEnv = std::getenv("PATH");
+
+				std::stringstream ssPath(pathEnv);
+
+				std::string path;
+				bool found{ false };
+
+				while (std::getline(ssPath, path, ':')) {
+					if (path.empty()) continue;
+
+					try {
+						std::filesystem::path dirPath(path);
+
+						for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
+							if (entry.is_regular_file() && entry.path().filename() == userCommand) {
+								std::cout << entry.path().filename() << " is " << entry.path() << std::endl;
+								found = true;
+								break;
+							} 
+						}
+						if (found) break;
+					}
+					catch (const std::filesystem::filesystem_error& e) {}
+				}
+
+				if (!found) {
+					std::cout << userCommand << ": not found" << std::endl;
+				}
 			}
 		}
 		else {
+			std::string pathEnv = std::getenv("PATH");
+			std::stringstream ssPath(pathEnv);
+
+			std::string path;
+			while (std::getline(ssPath, path, ':')) {
+				std::string fullPath = path + '/' + userCommand;
+
+				std::cout << userCommand << " is " << fullPath << std::endl;
+				break;
+			}
+
 			std::cout << userCommand << ": command not found" << std::endl;
 		}
 		return 0;
