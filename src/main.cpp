@@ -56,10 +56,15 @@ public:
 						std::filesystem::path dirPath(path);
 
 						for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
-							if (entry.is_regular_file() && entry.path().filename() == userCommand) {
-								std::cout << entry.path().filename().string() << " is " << entry.path().string() << std::endl;
-								found = true;
-								break;
+							if (entry.is_regular_file() && entry.path().filename().string() == userCommand) {
+								auto perms = std::filesystem::status(entry.path()).permissions();
+								if ((perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none ||
+									(perms & std::filesystem::perms::group_exec) != std::filesystem::perms::none ||
+									(perms & std::filesystem::perms::others_exec) != std::filesystem::perms::none) {
+									std::cout << userCommand << " is " << entry.path().string() << std::endl;
+									found = true;
+									break;
+								}
 							} 
 						}
 						if (found) break;
