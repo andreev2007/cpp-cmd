@@ -82,14 +82,21 @@ public:
 			std::stringstream ssPath(pathEnv);
 
 			std::string path;
+			bool found = false;
 			while (std::getline(ssPath, path, ':')) {
-				std::string fullPath = path + '/' + userCommand;
+				if (path.empty()) continue;
 
-				std::cout << userCommand << " is " << fullPath << std::endl;
-				break;
+				std::string fullPath = path + '/' + userCommand;
+				if (std::filesystem::exists(fullPath)) {
+					std::cout << userCommand << " is " << fullPath << std::endl;
+					found = true;
+					break;
+				}
 			}
 
-			std::cout << userCommand << ": command not found" << std::endl;
+			if (!found) {
+				std::cout << userCommand << ": command not found" << std::endl;
+			}
 		}
 		return 0;
 	}
