@@ -5,6 +5,13 @@
 #include <algorithm>
 #include <filesystem>
 #include <cstdlib>
+#include <limits.h>
+
+#ifdef _WIN32
+const bool isWin = true;
+#else
+const bool isWin = false;
+#endif
 
 class Command {
 private:
@@ -15,6 +22,50 @@ public:
 	Command() {
 		std::getline(std::cin >> std::ws, userCommand);
 	};
+
+	int iterateThroughPath(bool execute = false) {
+		std::string pathEnv = std::getenv("PATH");
+
+		std::stringstream ssPath(pathEnv);
+
+		std::string path;
+		bool found{ false };
+		char pathSep = isWin ? ';' : ':';
+
+		while (std::getline(ssPath, path, pathSep)) {
+			if (path.empty()) continue;
+
+			try {
+				std::filesystem::path dirPath(path);
+
+				for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
+					if (entry.is_regular_file() && entry.path().filename().string() == userCommand) {
+						std::cout << userCommand << " is " << entry.path().string() << std::endl;
+						found = true;
+						
+						// Execute file if passed flag
+						if (execute) {
+							if (isWin) {
+								system(("start \"\" \"" + entry.path().string() + "\"").c_str());
+							}
+							else {
+								system(entry.path().string().c_str());
+							}
+						}
+
+						break;
+					}
+				}
+			}
+			catch (const std::filesystem::filesystem_error& e) {}
+			if (found) break;
+		}
+
+		if (!found) {
+			std::cout << userCommand << ": not found" << std::endl;
+		}
+		return found;
+	}
 
 	int execute() {
 		std::stringstream ss(userCommand);
@@ -42,61 +93,12 @@ public:
 				std::cout << userCommand << " is a shell builtin" << std::endl;
 			}
 			else {
-				std::string pathEnv = std::getenv("PATH");
-
-				std::stringstream ssPath(pathEnv);
-
-				std::string path;
-				bool found{ false };
-
-				while (std::getline(ssPath, path, ':')) {
-					if (path.empty()) continue;
-
-					try {
-						std::filesystem::path dirPath(path);
-
-						for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
-							if (entry.is_regular_file() && entry.path().filename().string() == userCommand) {
-								auto perms = std::filesystem::status(entry.path()).permissions();
-								if ((perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none ||
-									(perms & std::filesystem::perms::group_exec) != std::filesystem::perms::none ||
-									(perms & std::filesystem::perms::others_exec) != std::filesystem::perms::none) {
-									std::cout << userCommand << " is " << entry.path().string() << std::endl;
-									found = true;
-									break;
-								}
-							} 
-						}
-						if (found) break;
-					}
-					catch (const std::filesystem::filesystem_error& e) {}
-				}
-
-				if (!found) {
-					std::cout << userCommand << ": not found" << std::endl;
-				}
+				std::cout << "Got type" << std::endl;
+				this->iterateThroughPath();
 			}
 		}
 		else {
-			std::string pathEnv = std::getenv("PATH");
-			std::stringstream ssPath(pathEnv);
-
-			std::string path;
-			bool found = false;
-			while (std::getline(ssPath, path, ':')) {
-				if (path.empty()) continue;
-
-				std::string fullPath = path + '/' + userCommand;
-				if (std::filesystem::exists(fullPath)) {
-					std::cout << userCommand << " is " << fullPath << std::endl;
-					found = true;
-					break;
-				}
-			}
-
-			if (!found) {
-				std::cout << userCommand << ": command not found" << std::endl;
-			}
+			iterateThroughPath(true);
 		}
 		return 0;
 	}
