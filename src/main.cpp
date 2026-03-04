@@ -43,17 +43,22 @@ public:
 					std::string formattedString = firstSpacePos != std::string::npos ? userCommand.substr(0, firstSpacePos) : userCommand;
 
 					if (entry.is_regular_file() && entry.path().filename().string() == formattedString) {
-						found = true;
-						
-						// Execute file if passed flag
-						if (execute) {
-							system(userCommand.c_str());
-						}
-						else {
-							std::cout << userCommand << " is " << entry.path().string() << std::endl;
-						}
+						auto perms = std::filesystem::status(entry.path()).permissions();
+						if ((perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none ||
+							(perms & std::filesystem::perms::group_exec) != std::filesystem::perms::none ||
+							(perms & std::filesystem::perms::others_exec) != std::filesystem::perms::none) {
+							found = true;
+							
+							// Execute file if passed flag
+							if (execute) {
+								system(userCommand.c_str());
+							}
+							else {
+								std::cout << userCommand << " is " << entry.path().string() << std::endl;
+							}
 
-						break;
+							break;
+						}
 					}
 				}
 			}
