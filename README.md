@@ -1,34 +1,45 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/9ef1bb72-b784-47dd-9a4d-5ef51ce01580)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# 🐚 Custom Shell Implementation
 
-This is a starting point for C++ solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+A high-performance, POSIX-compliant shell implementation in C++ featuring:
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+## Features
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+- **Command Parsing**: Advanced shell command parsing with support for builtins and external executables
+- **PATH Resolution**: Intelligent PATH traversal with executable permission validation
+- **Built-in Commands**: Native implementation of `echo`, `type`, `exit`
+- **External Execution**: Seamless execution of system binaries with full argument passthrough
+- **Cross-Platform**: Support for both Windows and Unix-like systems
 
-# Passing the first stage
+## Technical Highlights
 
-The entry point for your `shell` implementation is in `src/main.cpp`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+- Uses C++17 `std::filesystem` for portable directory traversal
+- Efficient PATH parsing with `std::stringstream`
+- Robust error handling with exception management
+- Permission checking using filesystem permissions API
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+## Building
+
+```bash
+g++ -std=c++17 -o shell src/main.cpp
 ```
 
-Time to move on to the next stage!
+## Usage
 
-# Stage 2 & beyond
+```bash
+./shell
+$ echo Hello World
+Hello World
+$ type echo
+echo is a shell builtin
+$ type ls
+ls is /usr/bin/ls
+$ exit
+```
 
-Note: This section is for stages 2 and beyond.
+## Skills Demonstrated
 
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.cpp`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+- C++17 & Modern C++ Programming
+- Filesystem API Mastery
+- Cross-Platform Development
+- Shell Command Processing
+- Memory Management & Performance Optimization
