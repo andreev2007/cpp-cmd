@@ -37,20 +37,25 @@ public:
 
 			try {
 				std::filesystem::path dirPath(path);
+				std::size_t firstSpacePos = userCommand.find(' ');
 
 				for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
-					if (entry.is_regular_file() && entry.path().filename().string() == userCommand) {
-						std::cout << userCommand << " is " << entry.path().string() << std::endl;
+					std::string formattedString = firstSpacePos != std::string::npos ? userCommand.substr(0, firstSpacePos) : userCommand;
+
+					if (entry.is_regular_file() && entry.path().filename().string() == formattedString) {
 						found = true;
 						
 						// Execute file if passed flag
 						if (execute) {
 							if (isWin) {
-								system(("start \"\" \"" + entry.path().string() + "\"").c_str());
+								system(("start \"\" \"" + entry.path().string() + "\" " + userCommand.erase(0, firstSpacePos)).c_str());
 							}
 							else {
 								system(entry.path().string().c_str());
 							}
+						}
+						else {
+							std::cout << userCommand << " is " << entry.path().string() << std::endl;
 						}
 
 						break;
@@ -93,7 +98,6 @@ public:
 				std::cout << userCommand << " is a shell builtin" << std::endl;
 			}
 			else {
-				std::cout << "Got type" << std::endl;
 				this->iterateThroughPath();
 			}
 		}
