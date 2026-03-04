@@ -48,7 +48,7 @@ public:
 						// Execute file if passed flag
 						if (execute) {
 							if (isWin) {
-								system(("start \"\" \"" + entry.path().string() + "\" " + userCommand.erase(0, firstSpacePos)).c_str());
+								system(("start \"\" \"" + entry.path().string() + "\" " + userCommand).c_str());
 							}
 							else {
 								system(entry.path().string().c_str());
