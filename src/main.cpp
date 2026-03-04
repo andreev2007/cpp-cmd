@@ -47,12 +47,7 @@ public:
 						
 						// Execute file if passed flag
 						if (execute) {
-							if (isWin) {
-								system(("start \"\" \"" + entry.path().string() + "\" " + userCommand).c_str());
-							}
-							else {
-								system(entry.path().string().c_str());
-							}
+							system(userCommand.c_str());
 						}
 						else {
 							std::cout << userCommand << " is " << entry.path().string() << std::endl;
